@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bern City Scope - Bookings in one click</title>
+    <!-- Tailwind CSS Load -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font Configuration -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', georgia;
+            background-color: #ffc9e5ff; /* Light background */
+        }
+        .header-bg {
+            background-image: url('https://images.wallpaperscraft.com/image/single/city_river_bridge_1062316_3840x2160.jpg');
+            background-size: cover;
+            background-position: center;
+            height: 40vh; /* Increased height for visual impact */
+            position: relative;
+        }
+    </style>
+    <script>
+        // Tailwind configuration for the main pink theme color
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'dark-pink': '#880330ff',
+                        'primary-pink': '#e91e63', // A vibrant pink (similar to Material Pink)
+                        'accent-pink': '#db3572ff',
+                        'light-pink': '#ff94baff',
+                    }
+                }
+            }
+        }
+
+        // --- Accommodation Data ---
+        const accommodations = [
+            {
+                id: 1,
+                name: 'Hotel de Ville Bern',
+                type: 'Hotel (4-Star)',
+                price: 150,
+                rating: 4.5,
+                // Multiple images for the carousel and visual impact
+                images: [
+                    'https://hotelgillow.com/wp-content/uploads/2020/02/Fachada-3-1024x681.jpg', // Exterior
+                    'https://tse2.mm.bing.net/th/id/OIP.CMShwA90k_3cXrpL3VIMLAHaE5?pid=ImgDet&w=474&h=313&rs=1&o=7&rm=3', // Lobby
+                    'https://tse1.mm.bing.net/th/id/OIP.CEnH0oBxkWiENZadAOQjIQHaFd?pid=ImgDet&w=474&h=349&rs=1&o=7&rm=3', // Suite
+                    'https://digital.ihg.com/is/image/ihg/intercontinental-san-pedro-sula-4063840449-16x9', // Restaurant
+                ],
+                description: 'A luxurious boutique hotel in the heart of Bern\'s Old Town Centre. It offers stylish rooms with stunning views of the Aare river. Perfect for couples and business travellers seeking comfort and elegance. Gourmet breakfast is included.',
+                reviews: [
+                    { name: 'Anna K.', text: 'Incredible location and impeccable service. The room was spacious and very clean. We will be back!', rating: 5 },
+                    { name: 'Marc B.', text: 'A bit pricey, but worth it for the view and the quality of the bedding.', rating: 4 },
+                    { name: 'Chloe J.', text: 'The staff went above and beyond to make my stay comfortable. Truly 5-star attention.', rating: 5 },
+                    { name: 'Anonymous', text: 'The breakfast was the highlight. A magnificent spread of local and international delicacies.', rating: 5 },
+                    { name: 'David G.', text: 'The luxury suite was worth the splurge. Waking up to that view was amazing.', rating: 5 },
+                    { name: 'Eliza F.', text: 'Efficient and discreet service. A perfect stay for a business trip.', rating: 5 },
+                ]
+            },
+            {
+                id: 2,
+                name: 'Old Town Hostel & Bar',
+                type: 'Hostel',
+                price: 35,
+                rating: 4.8,
+                images: [
+                    'https://tse2.mm.bing.net/th/id/OIP.-4IH1OL5LXaYK3ayeJU6VgHaEc?rs=1&pid=ImgDetMain&o=7&rm=3', // Exterior
+                    'https://parahotel.es/wp-content/uploads/2022/09/Veranera-Hosttel-Sala-Estar-1.jpg', // Common Room
+                    'https://tse3.mm.bing.net/th/id/OIP.fj6dFjozmmHc5kP90es5AgHaE8?w=700&h=467&rs=1&pid=ImgDetMain&o=7&rm=3', // Dorm Pods
+                    'https://img.lalr.co/cms/2019/09/17183148/generator_venecia_fachada.jpg', // Bar
+                ],
+                description: 'Bern\'s most popular hostel, known for its social atmosphere and lively themed bar. It offers shared dormitory beds and a few private rooms. Ideal for backpackers and young travellers looking to meet new people.',
+                reviews: [
+                    { name: 'Sophia L.', text: 'The atmosphere is great and the staff are super friendly. The bed pods are surprisingly comfortable. Best budget option!', rating: 5 },
+                    { name: 'David M.', text: 'The bar is loud at night, which is fun, but not if you want an early sleep.', rating: 4 },
+                    { name: 'Liam P.', text: 'I met people from all over the world here! Fantastic social experience.', rating: 5 },
+                    { name: 'Anonymous', text: 'Clean facilities and secure lockers. Everything you need for a short stay.', rating: 4 },
+                    { name: 'Anya T.', text: 'Perfect location for exploring the city. I appreciated the free walking tour they organised.', rating: 5 },
+                    { name: 'Max B.', text: 'Great common area for chilling and meeting new friends. The kitchen is well-equipped.', rating: 5 },
+                    { name: 'Jenny R.', text: 'The dorm pods offer good privacy. A fantastic value for the price.', rating: 5 },
+                ]
+            },
+            {
+                id: 3,
+                name: 'Hotel Europa',
+                type: 'Hotel (3-Star)',
+                price: 87,
+                rating: 3.2,
+                images: [
+                    'https://tse1.mm.bing.net/th/id/OIP.U3llj6hhnioAGLTofQTJOAAAAA?rs=1&pid=ImgDetMain&o=7&rm=3', // Exterior
+                    'https://tse2.mm.bing.net/th/id/OIP._J6tmS9PJF6V9C9sWyOJ3QAAAA?rs=1&pid=ImgDetMain&o=7&rm=3', // Terrace View
+                    'https://images.neobookings.com/hotels/ibiza/hotel-royal-plaza/rooms/twin-room-sole-use-1-pax-pyxoojd7xn.jpg', // Room
+                    'https://th.bing.com/th/id/R.a496f72c79b8b20bc938e8a4a50ac543?rik=FOa4G2i5VmiRNw&riu=http%3a%2f%2fwww.arcadisl.com%2fwp-content%2fuploads%2f2018%2f04%2finstalaci%c3%b3n-calefacci%c3%b3n-en-hoteles-madrid-2.jpg&ehk=jLpZDY4YG1nok5tU4Wbe0E4conJ9bVfPojHsyCXw5kY%3d&risl=&pid=ImgRaw&r=0', // Buffet
+                ],
+                description: 'Located close to the famous Bärenpark (Bear Park), this hotel offers excellent value for money. Rooms are functional, and the terrace provides a panoramic city view. Great for families.',
+                reviews: [
+                    { name: 'Eleanor G.', text: 'Very clean and the breakfast buffet is varied. Close to public transport links.', rating: 4 },
+                    { name: 'Anonymous', text: 'Check-in was a bit slow, but the room was perfectly fine.', rating: 4 },
+                    { name: 'Mr. R. Finch', text: 'The view from the terrace at sunset is absolutely worth the price!', rating: 5 },
+                    { name: 'Jodie W.', text: 'Good sized room for a family of four. The staff were helpful with local recommendations.', rating: 4 },
+                    { name: 'Sam L.', text: 'The area is quiet and safe. Great place to stay if you want to be near nature but still central.', rating: 5 },
+                    { name: 'Mark T.', text: 'A simple, comfortable, and reliable 3-star hotel. No complaints.', rating: 4 },
+                    { name: 'Sophie S.', text: 'Perfect location for visiting the Bear Park with the kids.', rating: 4 },
+                ]
+            },
+            {
+                id: 4,
+                name: 'The Rose Garden Boutique Apartments',
+                type: 'Serviced Apartment',
+                price: 120,
+                rating: 4.7,
+                images: [
+                    'https://tse3.mm.bing.net/th/id/OIP.QU-jF0FrPOaMVVurmzUoywHaJe?rs=1&pid=ImgDetMain&o=7&rm=3', // Building Exterior
+                    'https://www.onepacificplaceresidences.com/wp-content/uploads/2023/05/4.-1-Bedroom-Premier.min_.jpg', // Kitchen and living room
+                    'https://img.nh-hotels.net/oGOL/RqNY9Z/original/NH_Lyon_Airport_Bathroom_Junior_Suite_Shower_Towels.jpg?output-quality=80&resize=1600:*&background-color=white', // Bathroom
+                    'https://tse3.mm.bing.net/th/id/OIP.Z1grsa8fHDtrSpQblqHL5AHaE7?rs=1&pid=ImgDetMain&o=7&rm=3', // Bedroom
+                ],
+                description: 'Self-catering apartments located near the beautiful Rose Garden. Ideal for longer stays, featuring fully equipped kitchenettes and spacious living areas. Enjoy privacy and independence.',
+                reviews: [
+                    { name: 'Sarah M.', text: 'Loved the independence! The kitchenette was a lifesaver. Felt like a home away from home.', rating: 5 },
+                    { name: 'Anonymous', text: 'Spotlessly clean and modern design. Check-in was done via a key code, very efficient.', rating: 5 },
+                    { name: 'Ben T.', text: 'A bit of a walk to the main train station, but the beautiful neighbourhood makes up for it.', rating: 4 },
+                    { name: 'Mrs. H. Clarke', text: 'Perfect for our extended weekend trip. Much better value than a traditional hotel room.', rating: 5 },
+                    { name: 'Jason P.', text: 'The apartment was quiet and had excellent natural light. Great for remote work.', rating: 5 },
+                    { name: 'Mia R.', text: 'The proximity to the Rose Garden made morning walks wonderful.', rating: 5 },
+                ]
+            },
+            {
+                id: 5,
+                name: 'Bern Budget Cabin',
+                type: 'Single Cabin',
+                price: 50,
+                rating: 3.9,
+                images: [
+                    'https://www.mexicodesconocido.com.mx/wp-content/uploads/2019/08/cabanas-jalisco-portada.jpg', // Exterior
+                    'https://st.hzcdn.com/simgs/pictures/cuartos-de-bano/casa-de-campo-cuarto-de-bano-xavi-perez-img~c4d1c5df0eb29b61_14-5288-1-eeb85a9.jpg', // Bathroom
+                    'https://i.pinimg.com/736x/1a/ab/24/1aab243aa08dbd7123472c42a4982bda.jpg', // Small Room
+                    'https://media.istockphoto.com/id/1349225074/es/foto/acogedor-y-lindo-chalet-luminoso.jpg?s=612x612&w=0&k=20&c=DXo1V8AhYIalGhX-rvovkJfuRtOFwfCU75xeIq0R098=', // Entrance
+                ],
+                description: 'A no-frills, reliable budget option right by the Bear Park. Simple, clean room with bathroom. Perfect for travellers who only need a place to sleep.',
+                reviews: [
+                    { name: 'Alex F.', text: 'Exactly what I needed: cheap and clean. Bathroom was fine.', rating: 4 },
+                    { name: 'Anonymous', text: 'Room is small, but the location is amazing and the price unbeatable for Bern.', rating: 3 },
+                    { name: 'Mrs. D. Patel', text: 'Basic but perfectly adequate for a quick stopover.', rating: 4 },
+                    { name: 'P. Jones', text: 'The owner was very friendly and helpful. Simple check-in process.', rating: 4 },
+                    { name: 'Chris W.', text: 'Location is the key here. Right next to the tourist spots.', rating: 4 },
+                    { name: 'S. Kim', text: 'Great for solo travellers on a tight budget. Cleanliness was good.', rating: 4 },
+                ]
+            }
+        ];
+
+        // Global state for the active image index in the carousel
+        let currentImageIndex = 0;
+
+        // Function to display the details modal and booking form
+        function showDetails(id) {
+            const accommodation = accommodations.find(acc => acc.id === id);
+            if (!accommodation) return;
+
+            // Fill details
+            document.getElementById('detail-name').textContent = accommodation.name;
+            document.getElementById('detail-type').textContent = accommodation.type;
+            document.getElementById('detail-description').textContent = accommodation.description;
+            document.getElementById('detail-price').textContent = `${accommodation.price} £`;
+            document.getElementById('detail-rating').innerHTML = generateStars(accommodation.rating);
+
+            // Set up the carousel/gallery
+            const carouselContainer = document.getElementById('image-carousel-container');
+            carouselContainer.innerHTML = ''; // Clear previous images
+            accommodation.images.forEach((url, index) => {
+                const img = document.createElement('img');
+                img.src = url;
+                img.alt = ``;
+                img.className = 'w-full h-full object-cover rounded-lg absolute transition-opacity duration-500';
+                img.style.opacity = '0';
+                if (index === 0) {
+                    img.style.opacity = '1';
+                }
+                carouselContainer.appendChild(img);
+            });
+
+            // Re-render the thumbnail controls
+            const thumbnailContainer = document.getElementById('thumbnail-container');
+            thumbnailContainer.innerHTML = '';
+            accommodation.images.forEach((url, index) => {
+                const thumb = document.createElement('button');
+                thumb.className = 'w-1/4 p-1';
+                thumb.innerHTML = `<img src="${url}" alt="Thumbnail ${index + 1}" class="w-full h-16 object-cover rounded-md border-2 ${index === 0 ? 'border-primary-pink' : 'border-transparent'} hover:border-accent-pink transition duration-300" onclick="setCarouselImage(${index}, ${id})">`;
+                thumbnailContainer.appendChild(thumb);
+            });
+            
+            currentImageIndex = 0;
+
+            // Fill establishment reviews
+            const reviewsContainer = document.getElementById('establishment-reviews');
+            reviewsContainer.innerHTML = ''; // Clear previous
+            accommodation.reviews.forEach(review => {
+                reviewsContainer.innerHTML += `
+                    <div class="p-4 bg-gray-50 rounded-lg shadow-inner mb-3">
+                        <p class="font-semibold text-primary-pink">${review.name}</p>
+                        <p class="text-sm text-gray-600 italic">"${review.text}"</p>
+                        <div class="flex items-center mt-1">
+                            ${generateStars(review.rating, 16)}
+                        </div>
+                    </div>
+                `;
+            });
+
+
+            // Show the modal
+            document.getElementById('detail-modal').classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+            document.getElementById('reservation-form').reset(); // Clear reservation form
+        }
+
+        // Function to control the carousel display
+        function setCarouselImage(index, accId) {
+            const accommodation = accommodations.find(acc => acc.id === accId);
+            if (!accommodation) return;
+
+            currentImageIndex = index;
+            const images = document.getElementById('image-carousel-container').children;
+            const thumbnails = document.getElementById('thumbnail-container').children;
+
+            for (let i = 0; i < images.length; i++) {
+                images[i].style.opacity = i === currentImageIndex ? '1' : '0';
+                thumbnails[i].querySelector('img').classList.remove('border-primary-pink');
+                thumbnails[i].querySelector('img').classList.add('border-transparent');
+            }
+            thumbnails[currentImageIndex].querySelector('img').classList.add('border-primary-pink');
+        }
+
+        // Navigation for the carousel
+        function changeCarouselImage(direction, accId) {
+            const accommodation = accommodations.find(acc => acc.id === accId);
+            if (!accommodation) return;
+
+            const numImages = accommodation.images.length;
+            let newIndex = currentImageIndex + direction;
+
+            if (newIndex >= numImages) {
+                newIndex = 0;
+            } else if (newIndex < 0) {
+                newIndex = numImages - 1;
+            }
+            setCarouselImage(newIndex, accId);
+        }
+
+        // Function to close the modal (remains the same)
+        function closeModal() {
+            document.getElementById('detail-modal').classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+            document.getElementById('reservation-message').textContent = ''; // Clear message
+        }
+
+        // Generate rating stars (remains the same)
+        function generateStars(rating, size = 20) {
+            const fullStar = `<svg class="w-${size/4} h-${size/4} text-yellow-400 fill-current" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`;
+            const halfStar = `<svg class="w-${size/4} h-${size/4} text-yellow-400 fill-current" viewBox="0 0 24 24"><path d="M12 15.4V6.1l2.56 5.82L21 12.72l-5.63 4.81L17.27 24z"/></svg>`;
+            const emptyStar = `<svg class="w-${size/4} h-${size/4} text-gray-300 fill-current" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`;
+
+            let stars = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= Math.floor(rating)) {
+                    stars += fullStar;
+                } else if (i - 0.5 === rating) {
+                    stars += halfStar;
+                } else {
+                    stars += emptyStar;
+                }
+            }
+            return `<div class="flex">${stars}</div>`;
+        }
+
+        // Simulated reservation logic (remains the same)
+        function submitReservation(event) {
+            event.preventDefault();
+            const messageDiv = document.getElementById('reservation-message');
+            messageDiv.className = 'p-3 mt-4 rounded-lg text-center';
+            messageDiv.classList.add('bg-green-100', 'text-green-700', 'font-semibold');
+            messageDiv.textContent = 'Booking successfully sent! You will receive an email confirmation shortly.';
+        }
+
+        // Simulated contact logic (remains the same)
+        function handleContactForm(action) {
+            const messageDiv = document.getElementById('contact-message');
+            const form = document.getElementById('contact-form');
+            messageDiv.className = 'p-3 mt-4 rounded-lg text-center font-semibold';
+
+            if (action === 'send') {
+                if (form.fullname.value && form.email.value && form.message.value) {
+                    messageDiv.classList.add('bg-primary-pink/20', 'text-primary-pink');
+                    messageDiv.textContent = 'Message sent! We will contact you shortly.';
+                } else {
+                    messageDiv.classList.add('bg-red-100', 'text-red-700');
+                    messageDiv.textContent = 'Please fill in all fields before submitting.';
+                }
+            } else if (action === 'draft') {
+                messageDiv.classList.add('bg-gray-100', 'text-gray-700');
+                messageDiv.textContent = 'Draft saved locally (simulation).';
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100">
+
+    <!-- Fixed Header -->
+    <header class="bg-primary-pink text-white shadow-lg sticky top-0 z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <a href="www.berncityscope.ch/accommodation.htm" class="text-3xl font-bold tracking-wider">Bern City Scope</a>
+            <nav class="hidden md:flex space-x-6">
+                <a href="#" class="hover:text-light-pink transition duration-300">Home</a>
+                <a href="#" class="hover:text-light-pink transition duration-300">My Bookings</a>
+                <a href="#" class="hover:text-light-pink transition duration-300 font-bold border-b-2 border-white pb-1">Accommodation</a>
+                <a href="#" class="hover:text-light-pink transition duration-300">Help</a>
+            </nav>
+            <button class="bg-white text-primary-pink font-semibold px-4 py-2 rounded-full hover:bg-gray-200 transition duration-300">
+                Sign In
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Visual Hero Section with Bern City Photo -->
+    <div class="header-bg flex items-center justify-center">
+        <div class="bg-light-pink bg-opacity-40 p-6 rounded-xl text-center">
+            <h1 class="text-5xl font-extrabold text-dark-pink mb-2">Bern, Switzerland</h1>
+            <p class="text-xl text-dark-pink-200">Book your perfect stay in the UNESCO World Heritage city</p>
+        </div>
+    </div>
+
+
+    <!-- Main Content and Accommodation List -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Simulated Search Bar -->
+        <div class="bg-white p-6 rounded-xl shadow-xl mb-10 border border-primary-pink/30 -mt-16 relative z-[5]">
+            <form class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <div>
+                    <label for="destination" class="block text-sm font-medium text-gray-700">Destination</label>
+                    <input type="text" id="destination" value="Bern, Switzerland" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:border-primary-pink focus:ring-primary-pink" disabled>
+                </div>
+                <div>
+                    <label for="check-in" class="block text-sm font-medium text-gray-700">Check-in</label>
+                    <input type="date" id="check-in" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:border-primary-pink focus:ring-primary-pink">
+                </div>
+                <div>
+                    <label for="check-out" class="block text-sm font-medium text-gray-700">Check-out</label>
+                    <input type="date" id="check-out" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-3 focus:border-primary-pink focus:ring-primary-pink">
+                </div>
+                <button type="submit" class="w-full bg-accent-pink text-white font-bold py-3 px-4 rounded-lg hover:bg-primary-pink transition duration-300 shadow-md">
+                    Search
+                </button>
+            </form>
+        </div>
+
+        <h1 class="text-4xl font-extrabold text-gray-800 mb-6 border-b pb-2">Top Accommodations</h1>
+
+
+        <!-- Accommodation List -->
+        <section id="accommodation-list" class="space-y-6">
+            <!-- Accommodation Card 1 -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row border border-gray-200 hover:shadow-2xl transition duration-300">
+                <!-- Main image for the list view (Exterior) -->
+                <img src="https://hotelgillow.com/wp-content/uploads/2020/02/Fachada-3-1024x681.jpg" onerror="this.onerror=null; this.src='https://placehold.co/400x300/e91e63/ffffff?text=Image+Loading+Error';" alt="" class="w-full md:w-1/3 h-56 md:h-auto object-cover">
+                <div class="p-6 flex-grow flex flex-col justify-between">
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-1">Hotel de Ville Bern</h2>
+                        <span class="inline-block text-sm text-gray-600 mb-3">Hotel (4-Star) | Old Town Centre</span>
+                        <div class="flex items-center space-x-1 text-yellow-500 mb-3">
+                            <script>document.write(generateStars(4.5))</script>
+                            <span class="text-gray-500 text-sm ml-2">Excellent (820 reviews)</span>
+                        </div>
+                        <p class="text-gray-600">Luxurious boutique hotel with river Aare views. Gourmet breakfast and premium service.</p>
+                    </div>
+                    <div class="mt-4 flex justify-between items-center">
+                        <div class="text-right">
+                            <span class="text-4xl font-extrabold text-primary-pink">£150</span>
+                            <span class="text-gray-500 block text-sm">per night</span>
+                        </div>
+                        <button onclick="showDetails(1)" class="bg-primary-pink text-white font-bold py-3 px-6 rounded-lg hover:bg-accent-pink transition duration-300 shadow-md">
+                            View Details & Book
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accommodation Card 2 -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row border border-gray-200 hover:shadow-2xl transition duration-300">
+                <img src="https://tse2.mm.bing.net/th/id/OIP.-4IH1OL5LXaYK3ayeJU6VgHaEc?rs=1&pid=ImgDetMain&o=7&rm=3" onerror="this.onerror=null; this.src='https://placehold.co/400x300/f06292/ffffff?text=Image+Loading+Error';" alt="" class="w-full md:w-1/3 h-56 md:h-auto object-cover">
+                <div class="p-6 flex-grow flex flex-col justify-between">
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-1">Old Town Hostel & Bar</h2>
+                        <span class="inline-block text-sm text-gray-600 mb-3">Hostel | Young Atmosphere</span>
+                        <div class="flex items-center space-x-1 text-yellow-500 mb-3">
+                            <script>document.write(generateStars(4.8))</script>
+                            <span class="text-gray-500 text-sm ml-2">Exceptional (1250 reviews)</span>
+                        </div>
+                        <p class="text-gray-600">Bern's most social hostel, featuring a very popular bar. Comfortable beds and daily activities.</p>
+                    </div>
+                    <div class="mt-4 flex justify-between items-center">
+                        <div class="text-right">
+                            <span class="text-4xl font-extrabold text-primary-pink">£35</span>
+                            <span class="text-gray-500 block text-sm">per person/night</span>
+                        </div>
+                        <button onclick="showDetails(2)" class="bg-primary-pink text-white font-bold py-3 px-6 rounded-lg hover:bg-accent-pink transition duration-300 shadow-md">
+                            View Details & Book
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accommodation Card 3 -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row border border-gray-200 hover:shadow-2xl transition duration-300">
+                <img src="https://tse1.mm.bing.net/th/id/OIP.U3llj6hhnioAGLTofQTJOAAAAA?rs=1&pid=ImgDetMain&o=7&rm=3" onerror="this.onerror=null; this.src='https://placehold.co/400x300/ff80ab/ffffff?text=Image+Loading+Error';" alt="" class="w-full md:w-1/3 h-56 md:h-auto object-cover">
+                <div class="p-6 flex-grow flex flex-col justify-between">
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-1">Nydeck Hotel & Terrace</h2>
+                        <span class="inline-block text-sm text-gray-600 mb-3">Hotel (3-Star) | Near the Bear Park</span>
+                        <div class="flex items-center space-x-1 text-yellow-500 mb-3">
+                            <script>document.write(generateStars(4.2))</script>
+                            <span class="text-gray-500 text-sm ml-2">Very Good (610 reviews)</span>
+                        </div>
+                        <p class="text-gray-600">Excellent value with a panoramic terrace and functional rooms with great views.</p>
+                    </div>
+                    <div class="mt-4 flex justify-between items-center">
+                        <div class="text-right">
+                            <span class="text-4xl font-extrabold text-primary-pink">£98</span>
+                            <span class="text-gray-500 block text-sm">per night</span>
+                        </div>
+                        <button onclick="showDetails(3)" class="bg-primary-pink text-white font-bold py-3 px-6 rounded-lg hover:bg-accent-pink transition duration-300 shadow-md">
+                            View Details & Book
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accommodation Card 4 (Apartments) -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row border border-gray-200 hover:shadow-2xl transition duration-300">
+                <img src="https://tse3.mm.bing.net/th/id/OIP.QU-jF0FrPOaMVVurmzUoywHaJe?rs=1&pid=ImgDetMain&o=7&rm=3" onerror="this.onerror=null; this.src='https://placehold.co/400x300/c2185b/ffffff?text=Image+Loading+Error';" alt="" class="w-full md:w-1/3 h-56 md:h-auto object-cover">
+                <div class="p-6 flex-grow flex flex-col justify-between">
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-1">The Rose Garden Boutique Apartments</h2>
+                        <span class="inline-block text-sm text-gray-600 mb-3">Serviced Apartment | Near Rose Garden</span>
+                        <div class="flex items-center space-x-1 text-yellow-500 mb-3">
+                            <script>document.write(generateStars(4.7))</script>
+                            <span class="text-gray-500 text-sm ml-2">Superb (340 reviews)</span>
+                        </div>
+                        <p class="text-gray-600">Self-catering apartments with fully equipped kitchenettes. Ideal for long stays and family trips.</p>
+                    </div>
+                    <div class="mt-4 flex justify-between items-center">
+                        <div class="text-right">
+                            <span class="text-4xl font-extrabold text-primary-pink">£120</span>
+                            <span class="text-gray-500 block text-sm">per night</span>
+                        </div>
+                        <button onclick="showDetails(4)" class="bg-primary-pink text-white font-bold py-3 px-6 rounded-lg hover:bg-accent-pink transition duration-300 shadow-md">
+                            View Details & Book
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accommodation Card 5 (Guesthouse) -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row border border-gray-200 hover:shadow-2xl transition duration-300">
+                <img src="https://www.mexicodesconocido.com.mx/wp-content/uploads/2019/08/cabanas-jalisco-portada.jpg" onerror="this.onerror=null; this.src='https://placehold.co/400x300/ad1457/ffffff?text=Image+Loading+Error';" alt="" class="w-full md:w-1/3 h-56 md:h-auto object-cover">
+                <div class="p-6 flex-grow flex flex-col justify-between">
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-1">Bear Pit Budget Guesthouse</h2>
+                        <span class="inline-block text-sm text-gray-600 mb-3">Budget Guesthouse | Excellent Value</span>
+                        <div class="flex items-center space-x-1 text-yellow-500 mb-3">
+                            <script>document.write(generateStars(3.9))</script>
+                            <span class="text-gray-500 text-sm ml-2">Good (980 reviews)</span>
+                        </div>
+                        <p class="text-gray-600">Simple, clean rooms with shared facilities. Unbeatable price and prime location by the Bear Park.</p>
+                    </div>
+                    <div class="mt-4 flex justify-between items-center">
+                        <div class="text-right">
+                            <span class="text-4xl font-extrabold text-primary-pink">£60</span>
+                            <span class="text-gray-500 block text-sm">per night</span>
+                        </div>
+                        <button onclick="showDetails(5)" class="bg-primary-pink text-white font-bold py-3 px-6 rounded-lg hover:bg-accent-pink transition duration-300 shadow-md">
+                            View Details & Book
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Contact Section -->
+        <section class="mt-16 p-8 bg-white rounded-xl shadow-xl border border-primary-pink/30">
+            <h2 class="text-3xl font-bold text-primary-pink mb-4">Need information or something more specific? Contact us</h2>
+            <p class="text-gray-600 mb-6">Our team is ready to help you with your booking and stay queries.</p>
+
+            <form id="contact-form" onsubmit="event.preventDefault(); handleContactForm('send');" class="grid grid-cols-1 gap-4">
+                <input type="text" id="fullname" name="fullname" placeholder="Full Name" required class="p-3 border border-gray-300 rounded-lg focus:border-primary-pink focus:ring-primary-pink">
+                <input type="email" id="email" name="email" placeholder="Email Address" required class="p-3 border border-gray-300 rounded-lg focus:border-primary-pink focus:ring-primary-pink">
+                <textarea id="message" name="message" rows="4" placeholder="Type your message here..." required class="p-3 border border-gray-300 rounded-lg focus:border-primary-pink focus:ring-primary-pink"></textarea>
+
+                <div class="flex space-x-4 mt-2">
+                    <button type="button" onclick="handleContactForm('draft')" class="flex-1 bg-gray-300 text-gray-700 font-bold py-3 rounded-lg hover:bg-gray-400 transition duration-300">
+                        Save Draft
+                    </button>
+                    <button type="submit" class="flex-1 bg-primary-pink text-white font-bold py-3 rounded-lg hover:bg-accent-pink transition duration-300 shadow-md">
+                        Send Message
+                    </button>
+                </div>
+            </form>
+            <div id="contact-message" class="mt-4"></div>
+        </section>
+
+        <!-- Bern City Scope Website Reviews (More Reviews Added) -->
+        <section class="mt-16">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">What Our Users Say About Bern City Scope</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Review 1 (Named) -->
+                <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-primary-pink">
+                    <p class="text-xl font-serif italic mb-3">"The design is clear and the booking process is super fast. I could compare hotels and hostels easily. My new go-to website!"</p>
+                    <p class="font-semibold text-primary-pink">- Clara V., Manchester</p>
+                </div>
+                <!-- Review 2 (Anonymous) -->
+                <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-primary-pink">
+                    <p class="text-xl font-serif italic mb-3">"I love the pink theme, it gives it a unique, cheerful touch. The best thing is how well organized the site information is."</p>
+                    <p class="font-semibold text-gray-600">- Anonymous User</p>
+                </div>
+                <!-- Review 3 (Named) -->
+                <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-primary-pink">
+                    <p class="text-xl font-serif italic mb-3">"Very easy to use on mobile. The prices in pounds make budgeting for my trip from the UK easy. Excellent service."</p>
+                    <p class="font-semibold text-primary-pink">- Tom H., London</p>
+                </div>
+                <!-- New Review 4 (Anonymous) -->
+                <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-primary-pink">
+                    <p class="text-xl font-serif italic mb-3">"The search filters are intuitive and I found a perfect apartment for my family holiday in minutes. Highly recommend this site for Bern travel."</p>
+                    <p class="font-semibold text-gray-600">- Anonymous Traveller</p>
+                </div>
+                <!-- New Review 5 (Named) -->
+                <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-primary-pink">
+                    <p class="text-xl font-serif italic mb-3">"Finally, a clean, modern booking site that isn't overloaded with ads. The pink theme is lovely and easy on the eyes."</p>
+                    <p class="font-semibold text-primary-pink">- Bethany K., Edinburgh</p>
+                </div>
+                <!-- New Review 6 (Anonymous) -->
+                <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-primary-pink">
+                    <p class="text-xl font-serif italic mb-3">"The contact form is clear and they replied to my specific query about pet-friendly hotels very quickly. Great customer support!"</p>
+                    <p class="font-semibold text-gray-600">- Budget Traveller</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Details and Booking Modal -->
+    <div id="detail-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 z-50 flex justify-center items-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl max-h-[95vh] overflow-y-auto">
+            <!-- Modal Header -->
+            <div class="sticky top-0 bg-primary-pink text-white p-4 rounded-t-xl flex justify-between items-center z-10">
+                <h2 id="detail-name" class="text-2xl font-bold">Accommodation Name</h2>
+                <button onclick="closeModal()" class="text-white hover:text-light-pink transition duration-300">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <div class="p-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Image Gallery (Highly Visual) -->
+                <div class="lg:col-span-2">
+                    <h3 class="text-xl font-semibold text-primary-pink mb-4 border-b pb-1">Photos of the Establishment</h3>
+                    
+                    <!-- Main Image Carousel/Viewer -->
+                    <div class="relative w-full h-96 bg-gray-200 rounded-lg overflow-hidden shadow-lg mb-3">
+                        <div id="image-carousel-container" class="w-full h-full relative">
+                            <!-- Images injected here by JavaScript -->
+                        </div>
+                        <!-- Carousel Navigation Buttons -->
+                        <button onclick="changeCarouselImage(-1, parseInt(document.getElementById('detail-modal').querySelector('#reservation-form').id.split('-')[1]))" class="absolute left-3 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition z-10">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                        </button>
+                        <button onclick="changeCarouselImage(1, parseInt(document.getElementById('detail-modal').querySelector('#reservation-form').id.split('-')[1]))" class="absolute right-3 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition z-10">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </button>
+                    </div>
+
+                    <!-- Thumbnails for quick view (4 rooms/views represented) -->
+                    <div id="thumbnail-container" class="flex justify-between space-x-2">
+                        <!-- Thumbnails injected here by JavaScript -->
+                    </div>
+
+                    <h3 class="text-xl font-semibold text-primary-pink mt-6 mb-2 border-b pb-1">General Description</h3>
+                    <p id="detail-type" class="text-lg font-medium text-gray-700 mb-2"></p>
+                    <div id="detail-rating" class="flex mb-4"></div>
+                    <p id="detail-description" class="text-gray-600 mb-6"></p>
+
+                    <!-- Establishment Reviews -->
+                    <h3 class="text-xl font-semibold text-primary-pink mb-4 border-b pb-1">Guest Reviews</h3>
+                    <div id="establishment-reviews" class="space-y-4">
+                        <!-- Reviews are injected here with JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Booking Column -->
+                <div class="lg:col-span-1 bg-gray-50 p-6 rounded-lg shadow-inner border border-light-pink h-fit sticky top-20">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Book Now</h3>
+
+                    <div class="mb-4">
+                        <span class="text-2xl font-extrabold text-primary-pink" id="detail-price">£0</span>
+                        <span class="text-gray-500 block text-sm">/ per night, estimated price</span>
+                    </div>
+                    
+                    <!-- We use a unique ID for the form to help the carousel navigation in changeCarouselImage -->
+                    <form id="reservation-form-0" onsubmit="submitReservation(event)">
+                        <script>
+                            // Set the correct form ID when the modal opens
+                            const modal = document.getElementById('detail-modal');
+                            if (!modal.classList.contains('hidden')) {
+                                const accId = accommodations.find(acc => acc.name === document.getElementById('detail-name').textContent)?.id;
+                                if (accId) {
+                                    document.getElementById('reservation-form-0').id = `reservation-form-${accId}`;
+                                }
+                            }
+                        </script>
+                        <div class="space-y-4">
+                            <!-- Check-in Date -->
+                            <div>
+                                <label for="r-check-in" class="block text-sm font-medium text-gray-700">Check-in</label>
+                                <input type="date" id="r-check-in" required class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:border-primary-pink focus:ring-primary-pink">
+                            </div>
+                            <!-- Check-out Date -->
+                            <div>
+                                <label for="r-check-out" class="block text-sm font-medium text-gray-700">Check-out</label>
+                                <input type="date" id="r-check-out" required class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:border-primary-pink focus:ring-primary-pink">
+                            </div>
+                            <!-- Number of Guests -->
+                            <div>
+                                <label for="r-guests" class="block text-sm font-medium text-gray-700">Guests</label>
+                                <input type="number" id="r-guests" min="1" max="10" value="1" required class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:border-primary-pink focus:ring-primary-pink">
+                            </div>
+                            <!-- Room Type (Example select) -->
+                            <div>
+                                <label for="r-room-type" class="block text-sm font-medium text-gray-700">Room Type</label>
+                                <select id="r-room-type" required class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:border-primary-pink focus:ring-primary-pink">
+                                    <option value="">Select an option</option>
+                                    <option value="single">Single</option>
+                                    <option value="double">Double Standard</option>
+                                    <option value="suite">Suite (If applicable)</option>
+                                    <option value="dorm">Dormitory Bed (If applicable)</option>
+                                </select>
+                            </div>
+                            <!-- Full Name -->
+                            <div>
+                                <label for="r-fullname" class="block text-sm font-medium text-gray-700">Full Name</label>
+                                <input type="text" id="r-fullname" required class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:border-primary-pink focus:ring-primary-pink">
+                            </div>
+                            <!-- Email Address -->
+                            <div>
+                                <label for="r-email" class="block text-sm font-medium text-gray-700">Contact Email</label>
+                                <input type="email" id="r-email" required class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:border-primary-pink focus:ring-primary-pink">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full mt-6 bg-primary-pink text-white font-bold py-3 rounded-lg hover:bg-accent-pink transition duration-300 shadow-lg">
+                            Confirm Booking
+                        </button>
+                    </form>
+                    <div id="reservation-message"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 border-b border-gray-700 pb-6 mb-6">
+                <div>
+                    <h4 class="text-xl font-bold mb-3 text-primary-pink">Bern City Scope</h4>
+                    <p class="text-sm text-gray-400">Your gateway to the peace you deserve, all available in Bern.</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-3">Quick Links</h4>
+                    <ul class="space-y-1 text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-primary-pink">About Us</a></li>
+                        <li><a href="#" class="hover:text-primary-pink">FAQs</a></li>
+                        <li><a href="#" class="hover:text-primary-pink">Terms & Conditions</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-3">Contact</h4>
+                    <p class="text-sm text-gray-400">Email: support@berncityscope.ch</p>
+                    <p class="text-sm text-gray-400">Tel.: +41 31 123 45 67</p>
+                </div>
+            </div>
+
+            <!-- Privacy Policy and Disclaimer -->
+            <div class="text-sm text-gray-500 text-center">
+                <h4 class="text-lg font-semibold text-primary-pink mb-2">Privacy Policy and Disclaimer</h4>
+                <p class="mb-2">Bern City Scope is an intermediation platform. We strive to provide accurate information, but the availability of rooms and the direct responsibility for service quality, cancellation policies, safety, and any other contractual obligation rests solely and exclusively with the <strong>accommodation establishments</strong> (hotels and hostels) with which you make the booking.</p>
+                <p>&copy; 2020 Bern City Scope. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
